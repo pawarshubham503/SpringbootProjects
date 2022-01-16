@@ -19,7 +19,10 @@
 	<div class="jumbotron">
 		<h1 class="display-4" th:text="${totalReportedCases}"></h1>
 		<p class="lead">Total cases reported </p>
-		<p class="lead">changes since last day cases reported </p>
+		<hr class="my-4">
+  <span>new Cases reported since previous day</span>
+  	<h1 class="display-4" th:text="${totalNewCases}"></h1>
+  
 
 	</div>
 
