@@ -21,8 +21,8 @@ import io.shubhamcodes.coronavirustracker.models.LocationStats;
 @Service
 public class CoronaVirusDataService {
 	private static String VIRUS_DATA_URL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv";
-	private List<LocationStats> allStats=new ArrayList<>();
-	
+	private List<LocationStats> allStats = new ArrayList<>();
+
 	public List<LocationStats> getAllStats() {
 		return allStats;
 	}
@@ -32,9 +32,9 @@ public class CoronaVirusDataService {
 	}
 
 	@PostConstruct
-	@Scheduled(cron="* * * * * *")
+	@Scheduled(cron = "* * * * * *")
 	public void fetchVirusData() throws IOException, InterruptedException {
-		List<LocationStats> newStats=new ArrayList<>();
+		List<LocationStats> newStats = new ArrayList<>();
 		HttpClient client = HttpClient.newHttpClient();
 		HttpRequest request = HttpRequest.newBuilder().uri(URI.create(VIRUS_DATA_URL)).build();
 
@@ -42,17 +42,19 @@ public class CoronaVirusDataService {
 
 		StringReader csvBodyReader = new StringReader(httpResponse.body());
 		Iterable<CSVRecord> records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(csvBodyReader);
-		
+
 		for (CSVRecord record : records) {
-		    LocationStats locationStats=new LocationStats();
-		    locationStats.setState(record.get("Province_State"));
-		    locationStats.setCountry(record.get("Country_Region"));
-		
-		    locationStats.setLatestTotalCases(Integer.parseInt(record.get(record.size()-1)));
-		
-		    System.out.println(locationStats);
-		  newStats.add(locationStats);
+			LocationStats locationStats = new LocationStats();
+			locationStats.setState(record.get("Province_State"));
+			locationStats.setCountry(record.get("Country_Region"));
+
+			int latestCases = Integer.parseInt(record.get(record.size() - 1));
+			int prevDayCases = Integer.parseInt(record.get(record.size() -2));
+			locationStats.setLatestTotalCases(latestCases);
+			locationStats.setDiffFromPrevDay(latestCases- prevDayCases);
+			// System.out.println(locationStats);
+			newStats.add(locationStats);
 		}
-		this.allStats=newStats;  
+		this.allStats = newStats;
 	}
 }
